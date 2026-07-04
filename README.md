@@ -52,3 +52,9 @@ detection and stealth are untouched.
 
 - Mod by **crisdias**.
 - Soulash 2 by Artur Śmiarowski / Wizards of the Code.
+
+## License
+
+Released under the [MIT License](LICENSE). Soulash 2 and its base content
+(`core_2`) belong to Wizards of the Code; this mod is an independent,
+self-contained add-on and bundles no base-game files.
