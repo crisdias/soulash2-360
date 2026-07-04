@@ -1,0 +1,13 @@
+[
+	{
+		"id": "human_360_full_sight",
+		"name": "360-Degree Vision",
+		"image": 17,
+		"effects": [
+			{
+				"effect": "full_sight",
+				"value": 1
+			}
+		]
+	}
+]

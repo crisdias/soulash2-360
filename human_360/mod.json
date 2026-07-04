@@ -1,0 +1,12 @@
+{
+	"author": "crisd",
+	"description": "Adds a new playable race, Human (360), identical to the Human race but born with permanent 360-degree vision. No item required - your character sees all around from the start.",
+	"game_required": "0.9.24.12",
+	"icon": "S.png",
+	"mods_required": [
+		"core_2"
+	],
+	"name": "Human 360 Vision",
+	"thumbnail": "thumbnail2.png",
+	"version": "1.0.0"
+}
