@@ -1,6 +1,6 @@
 {
 	"author": "crisd",
-	"description": "Adds a new playable race, Human (360), identical to the Human race but born with permanent 360-degree vision. No item required - your character sees all around from the start.",
+	"description": "Gives your character permanent 360-degree vision - you see in every direction around you at all times, from birth and no matter which race you choose. No item or equipment required. NPCs are unaffected, so stealth still works.",
 	"game_required": "0.9.24.12",
 	"icon": "S.png",
 	"mods_required": [

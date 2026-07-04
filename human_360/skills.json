@@ -1,0 +1,15 @@
+[
+	{
+		"id": "human_360_second_sight",
+		"name": "Second Sight",
+		"image": 0,
+		"description": "An awakened, all-around awareness of your surroundings - you perceive the world in every direction at once.\n\nGranted by drinking an Elixir of the All-Seeing; it settles in permanently as you move.",
+		"exp_sources": [
+			{ "id": "walk", "rate": 100000 },
+			{ "id": "ability", "rate": 100000 }
+		],
+		"stat_points": [],
+		"start_level": 1,
+		"difficulty": 0
+	}
+]

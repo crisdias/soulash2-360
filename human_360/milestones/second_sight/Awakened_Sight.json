@@ -1,0 +1,16 @@
+{
+	"id": "human_360_awakened_sight",
+	"name": "Awakened Sight",
+	"requirements": {
+		"milestones": [],
+		"skill": 1
+	},
+	"rewards": [
+		{
+			"passive": "human_360_full_sight"
+		}
+	],
+	"skill_id": "human_360_second_sight",
+	"steps": [],
+	"steps_type": 0
+}

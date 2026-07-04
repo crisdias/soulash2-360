@@ -1,0 +1,38 @@
+{
+	"components": [
+		"glyph",
+		"item",
+		"minimap_pixel",
+		"name",
+		"position_2d",
+		"stackable",
+		"usable",
+		"value",
+		"weight"
+	],
+	"description": "A shimmering draught said to open a thousand unseen eyes. Drinking it awakens a permanent, all-around sight.",
+	"glyph": {
+		"frames": [
+			{
+				"color": [130, 200, 255],
+				"delay": 0,
+				"index": 2974
+			}
+		],
+		"random_frame_start": false
+	},
+	"id": "human_360_Elixir_of_the_All_Seeing",
+	"item": {
+		"image": 1358,
+		"type": 17
+	},
+	"minimap_pixel": [130, 200, 255],
+	"name": "Elixir of the All-Seeing",
+	"usable": {
+		"ability": "",
+		"recipe": "",
+		"skill_p": "human_360_second_sight"
+	},
+	"value": 5000,
+	"weight": 0.20000000298023224
+}
