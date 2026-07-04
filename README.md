@@ -1,62 +1,52 @@
-# Human (360) — Soulash 2 Race Mod
+# 360 Vision — Soulash 2 Mod
 
-A small [Soulash 2](https://store.steampowered.com/app/2399160/Soulash_2/) mod that adds a new
-playable race, **Human (360)** — identical to the Human race in every way, but **born with
-permanent 360-degree vision**. No item required.
+A small [Soulash 2](https://store.steampowered.com/app/2399160/Soulash_2/) mod that gives your
+character **permanent 360-degree vision** — you see in every direction around you at all times,
+**from birth and no matter which race you pick**. No item, no equipment, no ritual.
 
 ## Why
 
 Soulash 2 normally limits your sight to an arc in front of your character. The *Hood of a Thousand
 Eyes* grants full all-around vision, but it's an item you have to find and keep equipped. This mod
-bakes that ability into a race, so your character is all-seeing from birth — the way most other
-roguelikes let you see around yourself.
+bakes that ability into your character from the start — the way most other roguelikes let you see
+around yourself — and it works for **every playable race**.
 
 ## What it does
 
-- Adds a new playable race **Human (360)** (id `human_360`): a clone of the Human race — same
-  stats (all +1), ages, name pools, and appearance.
-- The race is born with a custom passive, **360-Degree Vision**, which uses the game's native
-  `full_sight` effect (`{ "effect": "full_sight", "value": 1 }`). The official modding docs
-  describe this effect as *"Allows the player to have a 360-degree vision"* — the same power the
-  Hood of a Thousand Eyes provides.
-- Bundles its own copy of the human portrait parts, so the race shows the normal human portrait
-  **without editing any base-game file**.
+- Every character **you** create is born with all-around (360°) vision.
+- It uses the game's native `full_sight` effect (the same power the Hood of a Thousand Eyes
+  provides), delivered through an always-on skill → milestone → passive chain (see below).
+- **NPCs are not affected.** Their vision and detection are unchanged, so **sneaking still works**.
+- Edits no base-game files → safe to publish on the Steam Workshop or Nexus Mods.
 
 ## Install
 
 1. Copy the `human_360` folder into `...\Soulash 2\data\mods\`.
-2. Launch the game → **Mods** in the main menu → enable **Human 360 Vision**
+2. Launch the game → **Mods** in the main menu → enable **360 Vision**
    (or add `"human_360"` to the `mods` array in
-   `%AppData%\WizardsOfTheCode\Soulash2\data\user_settings.json`).
-3. Restart the game, start a **New Game**, and choose the **Human (360)** race.
+   `%AppData%\Roaming\WizardsOfTheCode\Soulash2\data\user_settings.json`).
+3. **Start a NEW game/world.** Mods are applied per world — an existing world won't pick up the
+   change. Pick any race; you'll have 360° vision from the first turn.
 
 ## Compatibility
 
 - Built and tested against Soulash 2 **v0.9.24.12**.
 - Requires the `core_2` mod (base game content).
-- **Self-contained** — modifies no base-game files, so it is safe to publish on the Steam Workshop
-  or Nexus Mods.
+- **Self-contained** — modifies no base-game files.
 
 ## How it's built
 
 | File | Purpose |
 | --- | --- |
 | `mod.json` | Mod metadata (requires `core_2`) |
-| `character.json` | Defines the `human_360` race (Human clone + the passive) |
-| `passives.json` | The `360-Degree Vision` passive (`full_sight` effect) |
-| `assets.json` | Declares the portrait tilesheet |
-| `portraits/portrait_parts.json` | Portrait layer atlas (copied from `core_2`) |
-| `portraits/restrictions.json` | Assigns the human portrait parts to `human_360` |
-| `assets/gfx/portraits/portrait_parts.png` | Portrait spritesheet (copied from `core_2`) |
-| `npc/names/`, `npc/surnames/` | Human name pools |
+| `passives.json` | The `full_sight` passive that grants 360° vision |
+| `skills.json` | A "360 Vision" skill every character has from level 1 (`start_level`) |
+| `milestones/second_sight/Awakened_Sight.json` | Grants the passive at skill level 1 |
 
-### Portrait note
-
-Soulash 2 does not natively let a modded race reuse the core portraits by reference — a mod's
-`restrictions.json` only works for layers that also exist in that mod's `portrait_parts.json`.
-So the portrait atlas + image are bundled in the mod, and `restrictions.json` grants those parts
-to `human_360`. If a future game update changes the core portrait system, re-copy `portraits/` and
-`assets/gfx/portraits/` from `core_2`.
+The player is born with the **360 Vision** skill at level 1, and its level-1 milestone immediately
+grants the `full_sight` passive. Because NPC skills are defined explicitly per entity (NPCs never
+receive `start_level` skills), NPCs never gain the passive — only the player does, so enemy
+detection and stealth are untouched.
 
 ## Credits
 

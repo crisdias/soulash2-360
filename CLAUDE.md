@@ -5,73 +5,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A **data-only mod for the game Soulash 2**. There is no build, compile, lint, or test toolchain —
-the "code" is JSON data files plus PNG assets that the game loads at startup and merges on top of
-its base mod, `core_2`. The mod adds one playable race, **Human (360)**, that is a clone of the
-Human race but born with permanent 360-degree vision.
+the "code" is JSON data files that the game loads at startup and merges on top of its base mod,
+`core_2`. The mod gives **every character the player creates permanent 360-degree vision from birth,
+regardless of race**, without editing any base-game file and without affecting NPCs.
 
-`human_360/` is the mod itself (the shippable artifact). The repo root is the source of truth;
-the game loads a *copy* placed inside its own folder (see deploy loop below), so two copies exist
-and must be kept in sync.
+`human_360/` is the mod itself (the shippable artifact). The repo root is the source of truth; the
+game loads a *copy* placed inside its own folder (see deploy loop below), so two copies exist and
+must be kept in sync.
+
+> History: this started as a cloned "Human (360)" race, then a transformation ritual/elixir, before
+> landing on the current skill-based approach. The race, its portrait bundle, and the elixir were
+> removed — see `git log`. Ignore any lingering references to them.
 
 ## Deploy & test loop
 
-There are no unit tests. Verification is: deploy → restart game → load a character → read the log.
+There are no unit tests. Verification is: deploy → restart → **generate a NEW world** → read the log
+and look around in-game.
 
 ```bash
 GAME="/c/Program Files (x86)/Steam/steamapps/common/Soulash 2"
 
-# 1. Deploy the mod into the game
-cp -r human_360 "$GAME/data/mods/"
-
-# 2. Validate every JSON parses (do this before deploying)
+# 1. Validate every JSON parses (do this before deploying)
 find human_360 -name '*.json' -print -exec python -c "import json,sys; json.load(open(sys.argv[1],encoding='utf-8'))" {} \;
+
+# 2. Deploy the mod into the game
+cp -r human_360 "$GAME/data/mods/"
 
 # 3. Confirm the game loaded it without errors (after launching)
 cat "$GAME/logs/errors.log"     # should list "- human_360" and no parse/reference errors
 ```
 
 - **Activate the mod**: add `"human_360"` to the `mods` array in
-  `%AppData%\WizardsOfTheCode\Soulash2\data\user_settings.json` (or via the in-game Mods menu).
-- **A full game restart is required** after changing assets/tilesheets — returning to the menu is
-  not enough; new images are only loaded at startup.
-- **Manual test**: New Game → character creation → pick the **Human (360)** race. Check the
-  portrait renders (human appearance) and, in-game, that vision extends in all directions.
-- The authoritative modding reference ships with the game at `<install>/data/docs/index.html`
-  (races = §7, portraits = §8, passive effects table lists `full_sight`, `sight_behind`, etc.).
+  `%AppData%\Roaming\WizardsOfTheCode\Soulash2\data\user_settings.json` (or via the in-game Mods menu).
+- **Mods apply per world.** Toggling or installing a mod only affects **new** worlds — you must
+  generate a new world to see changes; restarting alone is not enough.
+- **Cheat console** (for testing): set `"debug": { "enabled": true }` in `user_settings.json` **while
+  the game is closed** (it is read at startup, and the game rewrites the file on exit). In-game
+  (with a save loaded) open it with the backtick key. Useful: `exp <n> <skill_id>`,
+  `skill_p <n> <skill_id>`, `spawn <id> [count]`.
+- **Manual test**: New Game → new world → pick any race → confirm 360° vision from the first turn.
+- The authoritative modding reference ships at `<install>/data/docs/index.html` (skills = §5,
+  passive-effects table ~lines 1400-2100, cheat console = §17.1). `full_sight` = 360° vision.
 
 ## Architecture
 
-The mod is a **data overlay on `core_2`** (declared via `mods_required` in `mod.json`). It never
-edits base-game files; it only adds/duplicates. A playable race is assembled across several files:
+The mod is an **additive data overlay on `core_2`** (declared via `mods_required` in `mod.json`). It
+never edits base-game files. The 360° vision is delivered by a three-link, **player-only** chain:
 
-- **`character.json`** — defines the `human_360` race under a `races[]` array: a field-for-field
-  clone of the core Human race (id `"0"`) with a new string id `"human_360"`, plus a `passives`
-  array. Race ids are **strings**, not numbers.
-- **`passives.json`** — the `360-Degree Vision` passive. 360 vision is the native engine effect
-  `{ "effect": "full_sight", "value": 1 }`. The race gains it purely by listing the passive id in
-  its `passives` array — the same mechanism the core Dwarf uses for `core_2_infravision`.
-- **Portrait bundle** (`assets.json` + `portraits/portrait_parts.json` + `portraits/restrictions.json`
-  + `assets/gfx/portraits/portrait_parts.png`) — see the constraint below.
-- **`npc/names/`, `npc/surnames/`** — name pools the race references from `character.json`.
+- **`passives.json`** — a passive whose effect is the native `{ "effect": "full_sight", "value": 1 }`
+  (documented as "360-degree vision"). A passive only applies to whoever references it; it is not
+  global.
+- **`skills.json`** — a `"360 Vision"` skill (id `human_360_second_sight`) with **`start_level: 1`**.
+  `start_level` is undocumented but makes the *player* start with the skill at that level. It has no
+  `exp_sources`, so it is innate and never levels.
+- **`milestones/second_sight/Awakened_Sight.json`** — a milestone with `requirements.skill: 1` whose
+  reward is `{ "passive": "human_360_full_sight" }`. The player reaches level 1 at birth (via
+  `start_level`), which grants the passive → 360° vision from the first turn.
 
-### The portrait constraint (the non-obvious part)
+### Why NPCs are unaffected (the non-obvious part)
 
-Soulash 2 does **not** let a modded race reuse the core portraits by reference. A mod's
-`restrictions.json` (which maps portrait layer → race id) only takes effect for layers that also
-exist in that **same mod's** `portrait_parts.json` atlas, whose frames point into an image declared
-in that mod's `assets.json`. Granting core layers to a new race from a mod-only `restrictions.json`
-silently renders an empty portrait.
-
-So the portrait files here are **copies of the `core_2` portrait atlas + spritesheet**, bundled into
-the mod, with `restrictions.json` re-granting the human portrait parts to `human_360`. The three
-files link by name: a `restrictions.json` key is a layer name → it must exist in
-`portrait_parts.json` `meta.layers` (with a `group`) and have a frame `generated_portraits (<name>).aseprite`
-whose coordinates index the PNG. If the game's portrait system changes in an update, re-copy
-`portraits/` and `assets/gfx/portraits/` from `core_2`.
+`start_level` only affects the **player's** starting skills. **NPC skills are enumerated explicitly
+per entity** in each actor's `skills` component (e.g. a Human Guard lists only `athletics` +
+`pole_fighting`; NPCs don't get `alchemy` despite it having `start_level: 1`). So NPCs never receive
+the `"360 Vision"` skill or its passive. NPC detection uses each NPC entity's own `sight` component
+(`range` / `threesixty: false`), which this mod never touches — so **stealth is unaffected**. Keep
+the effect player-only; do not move it onto a race, entity, or anything NPCs inherit.
 
 ## Working rules
 
 - **Never edit `core_2` or any base-game file.** Keep everything inside `human_360/` so the mod
   stays portable and publishable (Nexus / Steam Workshop) and survives game updates. Use `core_2`
-  only as a source to copy from.
+  only as a source to read from.
 - Keep `mod.json` `game_required` aligned with the tested game version (currently `0.9.24.12`).
+- Remember mods apply **per world** — always test in a freshly generated world.
